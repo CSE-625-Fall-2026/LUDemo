@@ -1,6 +1,10 @@
 # LUDemo
 
-Four small programs solve the same five polynomial-fitting equations:
+Small C++ programs compare row operations and LU decomposition. LUDemo is
+maintained directly on `main`, without numbered releases.
+
+The first four programs solve the same five polynomial-fitting equations.
+The fifth demonstrates partial pivoting with a sensor-calibration system.
 
 | Program | Number type | Method |
 | --- | --- | --- |
@@ -8,6 +12,7 @@ Four small programs solve the same five polynomial-fitting equations:
 | `double_lu` | `double` | `a.lu()`, forward substitution, and back substitution |
 | `double_lu_pivoted` | `double` | `a.luPartialPivoting()`, then substitution using `P*b` |
 | `rational_rref` | `RationalNumber<ArbitraryInteger>` | Row operations with `a.augment(b).rref()` |
+| `sensor_calibration` | `double` | Plain LU and partial-pivoting LU on the same 5×5 system |
 
 ## The system
 
@@ -73,7 +78,57 @@ the remaining column and swaps that row into place. The demo then solves
 `L*y = P*b`, followed by `U*c = y`, using the same simple substitution loops as
 the original LU program. `double_lu` retains the original method for comparison.
 
-## Solve-time profile
+## A 5×5 sensor-calibration example
+
+Suppose five measurement channels each pick up a mixture of five unknown
+signal voltages. The calibration matrix `A` contains dimensionless gains;
+`b` contains the measured voltages. We solve `A*x = b` to recover the signals.
+These gains and voltages are plausible for a small analog measurement system:
+the readings fit within ordinary [±10 V measurement ranges](https://www.ni.com/en/shop/hardware-portfolio/daq-sensor-io/voltage.html).
+This is a deliberately constructed teaching example, not recorded sensor data.
+No measurement noise is added, so we can isolate the arithmetic error.
+
+```text
+      [ 0.1  0.3  0.2  0.1  0.4 ]        [ 3.7 ]
+      [ 0.3  0.9  0.1  0.2  0.1 ]        [ 3.7 ]
+A  =  [ 0.5  0.2  0.8  0.1  0.3 ]   b =  [ 5.2 ] volts
+      [ 0.2  0.7  0.3  0.9  0.1 ]        [ 6.6 ]
+      [ 0.4  0.1  0.2  0.3  0.8 ]        [ 6.4 ]
+
+Exact solution for these decimal values: x = [1, 2, 3, 4, 5] volts
+```
+
+The `sensor_calibration` program passes the same `double` inputs to both
+methods and uses the same forward- and back-substitution function. This run
+used AppleClang 21 on an Apple M4, macOS 26.6.2, with a Release build.
+All solution values and absolute errors below are in volts.
+
+| Signal | Expected | Plain LU | Absolute error | LU with partial pivoting | Absolute error |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `x1` | 1 | -6.8473677618669901 | `7.847368e+00` | 0.99999999999999922 | `7.771561e-16` |
+| `x2` | 2 | 4.6314031645305391 | `2.631403e+00` | 2.0000000000000000 | `0` |
+| `x3` | 3 | 3.5471965933286032 | `5.471966e-01` | 3.0000000000000000 | `0` |
+| `x4` | 4 | 3.7700496806245560 | `2.299503e-01` | 3.9999999999999996 | `4.440892e-16` |
+| `x5` | 5 | 4.7721788502484026 | `2.278211e-01` | 5.0000000000000000 | `0` |
+
+| Diagnostic | Plain LU | LU with partial pivoting |
+| --- | ---: | ---: |
+| Second pivot | `1.887379e-16` | `0.78` |
+| Largest absolute solution error (V) | `7.847368e+00` | `7.771561e-16` |
+| Largest absolute equation residual, `max(abs(A*x - b))` (V) | `3.050987e+00` | `8.881784e-16` |
+
+The first two rows begin with proportional pairs: `[0.1, 0.3]` and
+`[0.3, 0.9]`. Without a row swap, the second pivot would be zero in exact
+arithmetic. In this run, rounding leaves a tiny nonzero pivot, and dividing by
+it produces huge multipliers that amplify arithmetic errors. The full 5×5
+matrix still has a unique solution. Partial pivoting chooses better rows and
+recovers the known voltages to nearly machine precision.
+
+Results vary with compiler and platform; plain LU may instead encounter an
+exactly zero pivot and report that a row swap is required. Run
+`./build/sensor_calibration` to see both solutions on your machine.
+
+## Polynomial solve-time profile
 
 Measured on the same Release build as the error table. Each median covers 21
 process runs after three discarded warm-up runs. An internal steady clock times
@@ -88,11 +143,7 @@ approximate and platform-dependent.
 | `double_lu_pivoted` | 1.375 | `1.059444e+07` | `1.272578e-16` |
 | `rational_rref` | 3245.000 | `0.000000e+00` | `0.000000e+00` |
 
-After building, regenerate both Markdown tables with Python 3:
-
-```bash
-python3 tools/profile.py --build-dir build --runs 21
-```
+Each polynomial program prints its own solve time and error measurements.
 
 ## Build and run
 
@@ -113,6 +164,7 @@ cmake --build build
 ./build/double_lu
 ./build/double_lu_pivoted
 ./build/rational_rref
+./build/sensor_calibration
 ctest --test-dir build --output-on-failure
 ```
 
@@ -127,16 +179,12 @@ cmake --build build
 ./build/double_lu.exe
 ./build/double_lu_pivoted.exe
 ./build/rational_rref.exe
+./build/sensor_calibration.exe
 ctest --test-dir build --output-on-failure
 ```
 
-Each program is one source file in `programs/`. CTest runs all four: the double
-programs check for finite answers and small equation residuals, while the
-rational program requires exact coefficients and an exactly zero residual.
-
-## Versions
-
-| LUDemo | MatrixClassDemo | Programs |
-| --- | --- | --- |
-| `v0.1.0` | `v3.0.0` | Double row reduction, double LU, and rational row reduction |
-| `v0.2.0` | `v3.1.0` | Adds double LU with partial pivoting and reproducible error/time tables |
+Each program is one source file in `programs/`. CTest runs all five. The double
+polynomial programs check for finite answers and small equation residuals;
+the rational program requires exact coefficients and an exactly zero residual.
+The sensor example checks that the pivoted solution and equation residual are
+accurate within `1e-10`. Its plain LU result is printed for comparison.

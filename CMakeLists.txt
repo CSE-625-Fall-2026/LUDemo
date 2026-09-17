@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(LUDemo VERSION 0.2.0 LANGUAGES CXX)
+project(LUDemo LANGUAGES CXX)
 
 include(FetchContent)
 
@@ -29,6 +29,9 @@ target_link_libraries(double_lu PRIVATE MatrixClassDemo::matrix)
 add_executable(double_lu_pivoted programs/double_lu_pivoted.cpp)
 target_link_libraries(double_lu_pivoted PRIVATE MatrixClassDemo::matrix)
 
+add_executable(sensor_calibration programs/sensor_calibration.cpp)
+target_link_libraries(sensor_calibration PRIVATE MatrixClassDemo::matrix)
+
 add_executable(rational_rref programs/rational_rref.cpp)
 target_link_libraries(rational_rref PRIVATE
     MatrixClassDemo::matrix
@@ -42,4 +45,5 @@ if(BUILD_TESTING)
     add_test(NAME double_lu COMMAND double_lu)
     add_test(NAME double_lu_pivoted COMMAND double_lu_pivoted)
     add_test(NAME rational_rref COMMAND rational_rref)
+    add_test(NAME sensor_calibration COMMAND sensor_calibration)
 endif()
