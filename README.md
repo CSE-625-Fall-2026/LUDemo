@@ -33,8 +33,6 @@ conditioned: tiny changes in the sample values can cause large changes in the
 coefficients. The double programs round the input fractions and introduce
 further rounding during elimination. The rational program constructs and solves
 the system exactly. ArbitraryInteger prevents fixed-size integer overflow.
-See the [NumPy polynomial-fitting notes](https://numpy.org/doc/stable/reference/generated/numpy.polyfit.html#notes)
-for why poorly centered sample locations make coefficient recovery sensitive.
 
 ## Rounding-error comparison
 
@@ -83,8 +81,7 @@ the original LU program. `double_lu` retains the original method for comparison.
 Suppose five measurement channels each pick up a mixture of five unknown
 signal voltages. The calibration matrix `A` contains dimensionless gains;
 `b` contains the measured voltages. We solve `A*x = b` to recover the signals.
-These gains and voltages are plausible for a small analog measurement system:
-the readings fit within ordinary [±10 V measurement ranges](https://www.ni.com/en/shop/hardware-portfolio/daq-sensor-io/voltage.html).
+The example uses gains from 0.1 to 0.9 and readings from 3.7 to 6.6 volts.
 This is a deliberately constructed teaching example, not recorded sensor data.
 No measurement noise is added, so we can isolate the arithmetic error.
 
