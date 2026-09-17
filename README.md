@@ -26,15 +26,33 @@ The correct answer is `q` for all five coefficients, about `0.000115124542126251
 The large, closely spaced x values make this problem sensitive to rounding.
 The rational program uses exact fractions throughout the calculation.
 
-This table shows absolute error, or `abs(computed value - q)`.
+The table shows the coefficients returned by each method.
+**Calculated value** is the program's answer.
+**Absolute error** is `abs(calculated value - 987/8573324)`. Zero means an exact answer.
+Errors are rounded for display.
 
-| Coefficient | Double: row operations | Double: LU | Double: pivoted LU | Rational: row operations |
-| --- | ---: | ---: | ---: | ---: |
-| `c0` | `1.219680132e+03` | `1.219680113e+03` | `1.219680113e+03` | `0` |
-| `c1` | `4.867382290e+00` | `4.867382215e+00` | `4.867382215e+00` | `0` |
-| `c2` | `7.284099935e-03` | `7.284099824e-03` | `7.284099824e-03` | `0` |
-| `c3` | `4.844773495e-06` | `4.844773421e-06` | `4.844773421e-06` | `0` |
-| `c4` | `1.208375718e-09` | `1.208375699e-09` | `1.208375699e-09` | `0` |
+| Method | Coefficient | Calculated value | Absolute error |
+| --- | --- | ---: | ---: |
+| Double row operations | `c0` | `1.2196802469571332e+03` | `1.219680132e+03` |
+| Double row operations | `c1` | `-4.8672671652325254e+00` | `4.867382290e+00` |
+| Double row operations | `c2` | `7.3992244771337078e-03` | `7.284099935e-03` |
+| Double row operations | `c3` | `1.1027976863120555e-04` | `4.844773495e-06` |
+| Double row operations | `c4` | `1.1512575050196909e-04` | `1.208375718e-09` |
+| Double LU | `c0` | `1.2196802283968007e+03` | `1.219680113e+03` |
+| Double LU | `c1` | `-4.8672670909255444e+00` | `4.867382215e+00` |
+| Double LU | `c2` | `7.3992243657781077e-03` | `7.284099824e-03` |
+| Double LU | `c3` | `1.1027976870538615e-04` | `4.844773421e-06` |
+| Double LU | `c4` | `1.1512575050195058e-04` | `1.208375699e-09` |
+| Double pivoted LU | `c0` | `1.2196802283968007e+03` | `1.219680113e+03` |
+| Double pivoted LU | `c1` | `-4.8672670909254636e+00` | `4.867382215e+00` |
+| Double pivoted LU | `c2` | `7.3992243657781624e-03` | `7.284099824e-03` |
+| Double pivoted LU | `c3` | `1.1027976870538615e-04` | `4.844773421e-06` |
+| Double pivoted LU | `c4` | `1.1512575050195058e-04` | `1.208375699e-09` |
+| Rational row operations | `c0` | `987/8573324` | `0` |
+| Rational row operations | `c1` | `987/8573324` | `0` |
+| Rational row operations | `c2` | `987/8573324` | `0` |
+| Rational row operations | `c3` | `987/8573324` | `0` |
+| Rational row operations | `c4` | `987/8573324` | `0` |
 
 All three double methods returned about `1219.68` for `c0`.
 Partial pivoting does not fix the input rounding in this example.
