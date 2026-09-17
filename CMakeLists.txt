@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
-project(LUDemo VERSION 0.1.0 LANGUAGES CXX)
+project(LUDemo VERSION 0.2.0 LANGUAGES CXX)
 
 include(FetchContent)
 
 FetchContent_Declare(matrix_class_demo
     GIT_REPOSITORY https://github.com/CSE-625-Fall-2026/MatrixClassDemo.git
-    GIT_TAG v3.0.0
+    GIT_TAG v3.1.0
     GIT_SHALLOW TRUE
 )
 FetchContent_Declare(arbitrary_integer
@@ -26,6 +26,9 @@ target_link_libraries(double_rref PRIVATE MatrixClassDemo::matrix)
 add_executable(double_lu programs/double_lu.cpp)
 target_link_libraries(double_lu PRIVATE MatrixClassDemo::matrix)
 
+add_executable(double_lu_pivoted programs/double_lu_pivoted.cpp)
+target_link_libraries(double_lu_pivoted PRIVATE MatrixClassDemo::matrix)
+
 add_executable(rational_rref programs/rational_rref.cpp)
 target_link_libraries(rational_rref PRIVATE
     MatrixClassDemo::matrix
@@ -37,5 +40,6 @@ include(CTest)
 if(BUILD_TESTING)
     add_test(NAME double_rref COMMAND double_rref)
     add_test(NAME double_lu COMMAND double_lu)
+    add_test(NAME double_lu_pivoted COMMAND double_lu_pivoted)
     add_test(NAME rational_rref COMMAND rational_rref)
 endif()

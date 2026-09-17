@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iomanip>
 #include <iostream>
+#include <chrono>
 
 using Matrix = matrix::Matrix<double>;
 
@@ -27,10 +28,16 @@ int main() {
     }
 
     // Solve by row operations on [a | b].
+    const auto start = std::chrono::steady_clock::now();
     const auto reduced = a.augment(b).rref();
     Matrix solution(n, 1);
     for (int row = 0; row < n; ++row) {
         solution.set(row, 0, reduced.get(row, n));
+    }
+    const double solveTime = std::chrono::duration<double, std::micro>(
+        std::chrono::steady_clock::now() - start).count();
+
+    for (int row = 0; row < n; ++row) {
         for (int col = 0; col < n; ++col) {
             if (reduced.get(row, col) != (row == col ? 1.0 : 0.0)) {
                 std::cerr << "Row reduction did not produce an identity block.\n";
@@ -65,5 +72,6 @@ int main() {
     const double relativeResidual = maxResidual / maxB;
     std::cout << "\nLargest relative coefficient error: " << maxError
               << "\nRelative equation residual:          " << relativeResidual << '\n';
+    std::cout << "Solve time (us): " << solveTime << '\n';
     return std::isfinite(relativeResidual) && relativeResidual < 1e-10 ? 0 : 1;
 }

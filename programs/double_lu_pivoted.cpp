@@ -26,14 +26,15 @@ int main() {
         b.set(row, 0, (987.0 * sum) / 8573324.0);
     }
 
-    // a = L*U. First solve L*y = b, then U*c = y.
+    // P*a = L*U. Apply the same row permutation to b before substitution.
     const auto start = std::chrono::steady_clock::now();
-    const auto [L, U] = a.lu();
+    const auto [P, L, U] = a.luPartialPivoting();
+    const auto permutedB = P * b;
     Matrix y(n, 1), solution(n, 1);
 
     // Forward substitution.
     for (int row = 0; row < n; ++row) {
-        double value = b.get(row, 0);
+        double value = permutedB.get(row, 0);
         for (int col = 0; col < row; ++col) {
             value -= L.get(row, col) * y.get(col, 0);
         }
@@ -53,7 +54,7 @@ int main() {
         std::chrono::steady_clock::now() - start).count();
 
     std::cout << std::scientific << std::setprecision(16)
-              << "double with LU decomposition\n"
+              << "double with LU and partial pivoting\n"
               << "Expected every coefficient: 987/8573324 = " << expected << "\n\n"
               << "Coefficient     Computed value          Relative error\n";
     double maxError = 0;

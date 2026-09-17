@@ -3,6 +3,7 @@
 #include "RationalNumber.hpp"
 
 #include <iostream>
+#include <chrono>
 
 using Rational = RationalNumber<ArbitraryInteger>;
 using Matrix = matrix::Matrix<Rational>;
@@ -26,14 +27,20 @@ int main() {
     }
 
     // Solve by row operations on [a | b].
+    const auto start = std::chrono::steady_clock::now();
     const auto reduced = a.augment(b).rref();
     Matrix solution(n, 1);
+    for (int row = 0; row < n; ++row) {
+        solution.set(row, 0, reduced.get(row, n));
+    }
+    const double solveTime = std::chrono::duration<double, std::micro>(
+        std::chrono::steady_clock::now() - start).count();
+
     std::cout << "RationalNumber<ArbitraryInteger> with row reduction\n"
               << "Expected every coefficient: " << expected << "\n\n"
               << "Coefficient   Computed value\n";
     for (int row = 0; row < n; ++row) {
-        const Rational value = reduced.get(row, n);
-        solution.set(row, 0, value);
+        const Rational value = solution.get(row, 0);
         std::cout << "c" << row << "            " << value << '\n';
         if (value != expected) {
             std::cerr << "Exact coefficient check failed.\n";
@@ -46,5 +53,6 @@ int main() {
         return 1;
     }
     std::cout << "\nAll five coefficients are exact; the equation residual is exactly zero.\n";
+    std::cout << "Solve time (us): " << solveTime << '\n';
     return 0;
 }
